@@ -1,78 +1,110 @@
-import RestaurantCard from "./RestaurantCard.js"
-import { useState } from "react";
-import resList from "../../utils/mockData.js";
+import { useEffect, useState } from 'react';
+import RestaurantCard from './RestaurantCard';
+import Shimmer from './Shimmer';
+import useOnlineStatus from '../utils/useOnlineStatus';
 
+const Body = () => {
+  // * React Hook -> A normal JavaScript function which is given to us by React (or) Normal JS utility functions
+  // * useState() - Super Powerful variable
+  // * useEffect() -
 
-const Body=()=>{
-//Local State variable-Super powerful variable
-let [listOfRestaurants,setlistOfRestaurants]=useState(
-resList
-)
-        
-        
+  // * State Variable - Super Powerful variable
+  const [listOfRestaurants, setListOfRestaurants] = useState([]);
+  const [filteredRestaurant, setFilteredRestaurant] = useState([]);
 
+  const [searchText, setSearchText] = useState('');
 
-    //Normal Js variable
-//     let listOfRestaurants=[{
-        
-//         data: {
-      
-//       id: '121603',
-//       name: 'Kannur Food Point',
-      
-//       totalRatingsString: '10000+ ratings',
-//       cloudinaryImageId: 'bmwn4n4bn6n1tcpc8x2h',
-//       cuisines: ['Kerala', 'Chinese'],
-//       deliveryTime: 24,
-//       avgRating: '3.9',
-//         },
-//     },{
-        
-//         data: {
-     
-//       id: '121604',
-//       name: 'KFC',
-      
-//       totalRatingsString: '10000+ ratings',
-//       cloudinaryImageId: 'bmwn4n4bn6n1tcpc8x2h',
-//       cuisines: ['NonVeg', 'Chinese'],
-//       deliveryTime: 25,
-//       avgRating: '4.5',
-//         },
-//     },{
-//      data: {
-     
-//       id: '121605',
-//       name: 'Mcdie',
-      
-//       totalRatingsString: '10000+ ratings',
-//       cloudinaryImageId: 'bmwn4n4bn6n1tcpc8x2h',
-//       cuisines: ['NonVeg', 'Chinese'],
-//       deliveryTime: 25,
-//       avgRating: '4.1',
-//         },
-//     }
+  // * Whenever a state variable updates or changes, react triggers a reconciliation cycle(re-renders the component)
+  console.log('Body rendered');
 
-// ]
-    
+  useEffect(() => {
+    fetchData();
+  }, []);
 
+  const fetchData = async () => {
+    const data = await fetch(
+      'https://corsproxy.io/https://www.swiggy.com/dapi/restaurants/list/v5?lat=12.9351929&lng=77.624480699999999&page_type=DESKTOP_WEB_LISTING'
+    );
 
-    return(
-        <div className="body">
-            <div className="filter">
-                <button className="filter-btn" onClick={()=>{
-                   //filter logic
-                   const filteredList=listOfRestaurants.filter(res=>res.data.avgRating>4);
-                   setlistOfRestaurants(filteredList);
-                }}
-               >Top Rated Resturants</button>
-                <div className='res-container'>
-{
-  listOfRestaurants.map((restaurant)=>(<RestaurantCard resData={restaurant} id={restaurant.data.id}/>))
-}
-                </div>
-            </div>
+    const json = await data.json();
+
+    console.log(json);
+    // * optional chaining
+    // setListOfRestaurants(json.data.cards[2].data.data.cards);
+     const restaurants=json?.data?.cards?.[2]?.card?.card?.gridElements?.infoWithStyle?.restaurants || [];
+    setListOfRestaurants(restaurants);
+    setFilteredRestaurant(restaurants);
+  };
+
+  const onlineStatus=useOnlineStatus();
+  if(onlineStatus==false){
+    return <h1>Looks like you are offline</h1>
+  }
+
+  // * Conditional Rendering
+  // if (listOfRestaurants.length === 0) {
+  //   return <Shimmer />;
+  // }
+
+  return listOfRestaurants.length === 0 ? (
+    <Shimmer />
+  ) : (
+    <div className="body">
+      {/* <div className="search-container">
+        <input type="text" placeholder="Search Food or Restaurant" />
+        <button>Search</button>
+      </div> */}
+      <div className="filter">
+        <div className="search">
+          <input
+            type="text"
+            placeholder="Search a restaurant you want..."
+            className="searchBox"
+            value={searchText}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+            }}
+          />
+          <button
+            onClick={() => {
+              // * Filter th restaurant cards and update the UI
+              // * searchText
+              console.log(searchText);
+
+              const filteredRestaurant = listOfRestaurants.filter((res) =>
+                res.info.name.toLowerCase().includes(searchText.toLowerCase())
+              );
+
+              setFilteredRestaurant(filteredRestaurant);
+            }}
+          >
+            Search
+          </button>
         </div>
-    )
-}
+        <button
+          className="filter-btn"
+          onClick={() => {
+            // * Filter logic
+            const filteredList = listOfRestaurants.filter(
+              (res) => res.info.avgRating > 4
+            );
+
+            setListOfRestaurants(filteredList);
+            console.log(filteredList);
+          }}
+        >
+          Top Rated Restaurants
+        </button>
+      </div>
+      <div className="res-container">
+        {/* // * looping through the <RestaurentCard /> components Using Array.map() method */}
+
+        {filteredRestaurant.map((restaurant) => (
+          <RestaurantCard key={restaurant.info.id} resData={restaurant} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default Body;

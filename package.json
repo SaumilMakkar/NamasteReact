@@ -4,8 +4,8 @@
   "description": "This is Namaste React by Akshay Saini",
   "scripts": {
     "test": "jest",
-    "build":"parcel build index.html", 
-    "start":"parcel index.html"
+    "build": "parcel build index.html",
+    "start": "parcel index.html"
   },
   "keywords": [
     "react"
@@ -17,12 +17,11 @@
   },
   "dependencies": {
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.7.1"
   },
-  "browsersList":[
+  "browsersList": [
     "Last 2 Chrome Versions",
     "Last 2 Firefox Versions"
   ]
-
-  
 }
