@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import RestaurantCard from './RestaurantCard';
+import RestaurantCard,{withPromotedLabel} from './RestaurantCard';
 import Shimmer from './Shimmer';
 import useOnlineStatus from '../utils/useOnlineStatus';
+import { useContext } from 'react'; 
+import UserContext from '../utils/UserContext';
 
 const Body = () => {
   // * React Hook -> A normal JavaScript function which is given to us by React (or) Normal JS utility functions
@@ -12,10 +14,13 @@ const Body = () => {
   const [listOfRestaurants, setListOfRestaurants] = useState([]);
   const [filteredRestaurant, setFilteredRestaurant] = useState([]);
 
+
+
   const [searchText, setSearchText] = useState('');
+  const RestaurantCardPromoted=withPromotedLabel(RestaurantCard);
 
   // * Whenever a state variable updates or changes, react triggers a reconciliation cycle(re-renders the component)
-  console.log('Body rendered');
+  console.log('Body rendered',listOfRestaurants);
 
   useEffect(() => {
     fetchData();
@@ -40,6 +45,7 @@ const Body = () => {
   if(onlineStatus==false){
     return <h1>Looks like you are offline</h1>
   }
+  const {loggedInUser,setUserInfo}=useContext(UserContext);
 
   // * Conditional Rendering
   // if (listOfRestaurants.length === 0) {
@@ -85,26 +91,18 @@ const Body = () => {
           </div>
          
         </div>
-        <button
-          className="filter-btn"
-          onClick={() => {
-            // * Filter logic
-            const filteredList = listOfRestaurants.filter(
-              (res) => res.info.avgRating > 4
-            );
-
-            setListOfRestaurants(filteredList);
-            console.log(filteredList);
-          }}
-        >
-          Top Rated Restaurants
-        </button>
+        <label>Username</label>
+        <input className='border border-black' value={loggedInUser} onChange={(e)=>setUserInfo(e.target.value)}></input>
       </div>
       <div className="res-container flex flex-wrap">
-        {/* // * looping through the <RestaurentCard /> components Using Array.map() method */}
+        
 
         {filteredRestaurant.map((restaurant) => (
-          <RestaurantCard key={restaurant.info.id} resData={restaurant} />
+          <Link key={restaurant.info.id} to={"/restaurants/"+restaurant.info.id}>
+          {
+            restaurant.data.promoted?(<RestaurantCardPromoted resData={restaurant}/>):(<RestaurantCard resData={restaurant}/>)
+          }
+          </Link>
         ))}
       </div>
     </div>

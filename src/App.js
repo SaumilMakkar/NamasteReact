@@ -9,6 +9,7 @@ import Header from './components/Header.js';
 import Body from './components/Body.js';
 import { createBrowserRouter,RouterProvider} from 'react-router-dom';
 import { Outlet } from "react-router-dom";
+import UserContext from './utils/UserContext.js';
 
 /* Components of Our Food-Order App
  * Header
@@ -88,11 +89,32 @@ const About=lazy(()=>import(
 
 
 const AppLayout = () => {
+
+//authentication
+
+
+const[userInfo,setuserInfo]=useState();
+
+
+
+useEffect(()=>{
+  //Make an Api call and send username and password
+  const data={
+    name:"Saumil Makkar"
+  };
+  setuserInfo(data.name);
+})
+
   return (
-    <div className="app">
-      <Header />
-      <Outlet></Outlet>
-    </div>
+    <>
+      <UserContext.Provider value={{loggedInUser:userInfo,setUserName}}>
+        
+      </UserContext.Provider>
+      <div className="app">
+        <Header />
+        <Outlet></Outlet>
+      </div>
+    </>
   );
 };
 
