@@ -10,6 +10,9 @@ import Body from './components/Body.js';
 import { createBrowserRouter,RouterProvider} from 'react-router-dom';
 import { Outlet } from "react-router-dom";
 import UserContext from './utils/UserContext.js';
+import {Provider} from "react-redux"
+import appStore from './utils/appStore.js';
+import Cart from './components/Cart.js';
 
 /* Components of Our Food-Order App
  * Header
@@ -88,33 +91,34 @@ const About=lazy(()=>import(
 ))
 
 
+import store from "./utils/store.js"; // Make sure you have a Redux store exported from this path
+
 const AppLayout = () => {
 
-//authentication
+  //authentication
 
+  const [userInfo, setuserInfo] = React.useState();
 
-const[userInfo,setuserInfo]=useState();
+  React.useEffect(() => {
+    //Make an Api call and send username and password
+    const data = {
+      name: "Saumil Makkar"
+    };
+    setuserInfo(data.name);
+  }, []);
 
-
-
-useEffect(()=>{
-  //Make an Api call and send username and password
-  const data={
-    name:"Saumil Makkar"
-  };
-  setuserInfo(data.name);
-})
+  // setUserName function for context
+  const setUserName = (name) => setuserInfo(name);
 
   return (
-    <>
-      <UserContext.Provider value={{loggedInUser:userInfo,setUserName}}>
-        
+    <Provider store={appStore}>
+      <UserContext.Provider value={{ loggedInUser: userInfo, setUserName }}>
+        <div className="app">
+          <Header />
+          <Outlet />
+        </div>
       </UserContext.Provider>
-      <div className="app">
-        <Header />
-        <Outlet></Outlet>
-      </div>
-    </>
+    </Provider>
   );
 };
 
@@ -141,6 +145,9 @@ element:<Body></Body>
       {
         path:"/grocery",
         element:<Suspense fallback={<h1>Loading..</h1>}><Grocery/></Suspense>
+      },{
+        path:"/cart",
+        element:<Cart></Cart>
       }
     
   

@@ -65,7 +65,8 @@ const Body = () => {
           <div className='search m-4 p-4 bg-gray-100'>
              <input
             type="text"
-            placeholder="Search a restaurant you want..."
+            data-testid='searchInput'
+          
             className="searchBox border border-black"
             value={searchText}
             onChange={(e) => {
